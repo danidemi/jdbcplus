@@ -9,16 +9,27 @@ import java.sql.Statement;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
+import static java.lang.String.format;
+
 public class JdbcPlus {
 
-	public static void main(String[] args) {
-
+	public void run(String[] args) {
 		try {
 
 			String sql = StringUtils.join(IOUtils.readLines(System.in), null);
 
-			Class.forName("org.hsqldb.jdbcDriver");
-			Connection conn = DriverManager.getConnection(args[0]);
+			// String driverClass = "org.hsqldb.jdbcDriver";
+			// String driverClass = "org.apache.derby.jdbc.EmbeddedDriver";
+
+
+			String url = args[0];
+			String driverClass = args[1];
+
+			System.err.println(format("Connecting to %s using %s to execute: %s", url, driverClass, sql));
+
+			Class.forName(driverClass);
+
+			Connection conn = DriverManager.getConnection(url);
 			Statement createStatement = conn.createStatement();
 			createStatement.setFetchSize(10);
 			createStatement.setMaxFieldSize(512);
@@ -60,6 +71,11 @@ public class JdbcPlus {
 			throw new RuntimeException(e);
 		}
 
+	}
+
+	public static void main(String[] args) {
+
+		new JdbcPlus().run(args);
 	}
 
 }

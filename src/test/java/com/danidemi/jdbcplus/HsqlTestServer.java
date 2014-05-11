@@ -9,17 +9,18 @@ import java.sql.Statement;
 
 import org.hsqldb.Server;
 
-public class TestServer {
+public class HsqlTestServer implements EmbeddableServer {
 
 	Server server;
 	private final File tmp;
 	private final String name;
 
-	public TestServer(File tmp2, String name2) {
+	public HsqlTestServer(File tmp2, String name2) {
 		this.tmp = tmp2;
 		this.name = name2;
 	}
 
+	@Override
 	public void start() throws IOException {
 		String absolutePath = tmp.getAbsolutePath();
 		System.out.println("=========================");
@@ -37,6 +38,7 @@ public class TestServer {
 		System.out.println("=========================");
 	}
 
+	@Override
 	public void stop() throws InterruptedException {
 		server.shutdown();
 
@@ -54,11 +56,16 @@ public class TestServer {
 	Connection newConnection() throws ClassNotFoundException, SQLException {
 
 
-		Class.forName("org.hsqldb.jdbcDriver");
+		Class.forName(getDriverName());
 		Connection conn = DriverManager.getConnection("jdbc:hsqldb:hsql://localhost/" + name,
 				"sa",
 				"");
 		return conn;
+	}
+
+	@Override
+	public String getDriverName() {
+		return "org.hsqldb.jdbcDriver";
 	}
 
 	void executeStm(String statement) {
@@ -76,4 +83,6 @@ public class TestServer {
 	String getJdbcUrl() {
 		return "jdbc:hsqldb:hsql://localhost/" + name + "?user=sa&password=";
 	}
+
+
 }

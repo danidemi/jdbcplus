@@ -12,22 +12,25 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
+import org.powermock.api.mockito.PowerMockito;
 
 import static org.junit.Assert.assertThat;
 
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 
-public class JdbcPlusTest {
+//@RunWith(PowerMockRunner.class)
+// @PrepareForTest(Class.class)
+public class JdbcPlusTestWithHsql {
 
 	@Rule public TemporaryFolder tmp = new TemporaryFolder();
 	@Rule public TestName currentTest = new TestName();
 
-	TestServer tServer;
+	HsqlTestServer tServer;
 
 	@Before
 	public void setUp() throws IOException, ClassNotFoundException, SQLException {
 
-		tServer = new TestServer(tmp.newFolder(), currentTest.getMethodName());
+		tServer = new HsqlTestServer(tmp.newFolder(), currentTest.getMethodName());
 		tServer.start();
 
 	}
@@ -40,10 +43,13 @@ public class JdbcPlusTest {
 
 	}
 
+
 	@Test
 	public void shouldExtractTwoRows() throws ClassNotFoundException, SQLException {
 
 		// given
+		PowerMockito.spy(Class.class);
+
 		tServer.executeStm("CREATE TABLE PALL(Field1 INTEGER);");
 		tServer.executeStm("INSERT INTO PALL(Field1) VALUES (13);");
 		tServer.executeStm("INSERT INTO PALL(Field1) VALUES (16);");
@@ -87,7 +93,7 @@ public class JdbcPlusTest {
 		System.setOut(new PrintStream(outStream));
 		System.setIn(new ByteArrayInputStream(input.getBytes()));
 
-		JdbcPlus.main(new String[] { tServer.getJdbcUrl() });
+		JdbcPlus.main(new String[] { tServer.getJdbcUrl(), tServer.getDriverName() });
 		return outStream;
 	}
 }
